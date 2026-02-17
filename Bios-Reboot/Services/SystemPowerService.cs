@@ -16,6 +16,6 @@ public class SystemPowerService : ISystemPowerService
             CreateNoWindow = true,
             UseShellExecute = false
         };
-        Process.Start(psi);
+        using var _ = Process.Start(psi);
     }
 }
