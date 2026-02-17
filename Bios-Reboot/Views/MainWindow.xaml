@@ -11,7 +11,8 @@
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="MicaAlt"
+        WindowBackdropType="Mica"
+        Icon="/Assets/icon.ico"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid>
@@ -23,7 +24,8 @@
 
         <ui:TitleBar Grid.Row="0" Title="Reiniciar na BIOS" />
 
-        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
+        <StackPanel 
+            Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
             <ui:SymbolIcon Symbol="Power24" FontSize="48" Margin="0,0,0,15" Foreground="{DynamicResource SystemAccentColorBrush}" />
             <TextBlock Text="Deseja reiniciar agora e entrar na BIOS/UEFI?"
                        FontSize="16" 
