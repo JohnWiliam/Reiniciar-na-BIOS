@@ -1,7 +1,7 @@
-using Bios Reboot.ViewModels;
+using BiosReboot.ViewModels;
 using Wpf.Ui.Controls;
 
-namespace Bios Reboot.Views;
+namespace BiosReboot.Views;
 
 public partial class MainWindow : FluentWindow
 {
