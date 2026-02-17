@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <RootNamespace>BiosReboot</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     
     <PublishSingleFile>true</PublishSingleFile>
