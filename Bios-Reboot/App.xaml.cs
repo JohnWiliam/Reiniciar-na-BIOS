@@ -1,12 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
-using Bios Reboot.Services;
-using Bios Reboot.ViewModels;
-using Bios Reboot.Views;
+using BiosReboot.Services;
+using BiosReboot.ViewModels;
+using BiosReboot.Views;
 using Wpf.Ui;
 
-namespace Bios Reboot;
+namespace BiosReboot;
 
 public partial class App : Application
 {
