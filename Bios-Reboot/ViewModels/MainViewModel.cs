@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Bios Reboot.Services;
+using BiosReboot.Services;
 using System.Windows;
 
-namespace Bios Reboot.ViewModels;
+namespace BiosReboot.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
