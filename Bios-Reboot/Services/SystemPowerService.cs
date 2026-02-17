@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace Bios Reboot.Services;
+namespace BiosReboot.Services;
 
 public interface ISystemPowerService
 {
