@@ -12,7 +12,7 @@
         ResizeMode="NoResize"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
-        Icon="pack://application:,,,/Assets/icon.ico"
+        Icon="Assets/icon.ico"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid>
