@@ -15,11 +15,11 @@ public partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ConfirmRestart()
+    private async Task ConfirmRestart()
     {
         try 
         {
-            _powerService.RestartToFirmware();
+            await _powerService.RestartToFirmwareAsync();
             Application.Current.Shutdown();
         }
         catch (System.Exception ex)

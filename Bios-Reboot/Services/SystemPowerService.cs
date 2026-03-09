@@ -4,18 +4,21 @@ namespace BiosReboot.Services;
 
 public interface ISystemPowerService
 {
-    void RestartToFirmware();
+    Task RestartToFirmwareAsync();
 }
 
 public class SystemPowerService : ISystemPowerService
 {
-    public void RestartToFirmware()
+    public Task RestartToFirmwareAsync()
     {
-        var psi = new ProcessStartInfo("shutdown", "/r /fw /t 0")
+        return Task.Run(() =>
         {
-            CreateNoWindow = true,
-            UseShellExecute = false
-        };
-        using var _ = Process.Start(psi);
+            var psi = new ProcessStartInfo("shutdown", "/r /fw /t 0")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false
+            };
+            using var _ = Process.Start(psi);
+        });
     }
 }
