@@ -4,7 +4,7 @@ using System.Windows;
 using BiosReboot.Services;
 using BiosReboot.ViewModels;
 using BiosReboot.Views;
-using Wpf.Ui;
+using Wpf.Ui.Appearance;
 using System;
 
 namespace BiosReboot;
@@ -58,7 +58,7 @@ public partial class App : Application
 
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             // Verify if Theme Manager is initializing correctly
-            Wpf.Ui.Appearance.ApplicationThemeManager.ApplySystemTheme();
+            ApplicationThemeManager.ApplySystemTheme();
 
             mainWindow.Show();
 
