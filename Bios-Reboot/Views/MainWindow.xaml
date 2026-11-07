@@ -8,57 +8,81 @@
         mc:Ignorable="d"
         Title="Confirmar Reinicialização"
         Height="250" Width="450"
+        MinHeight="250" MinWidth="450"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="ClearType"
         Icon="pack://application:,,,/Assets/icon.ico"
         d:DataContext="{d:DesignInstance Type=vm:MainViewModel, IsDesignTimeCreatable=False}">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Title="Reiniciar na BIOS" />
+        <ui:TitleBar Grid.Row="0"
+                     Title="Reiniciar na BIOS"
+                     ShowMaximize="False"
+                     ShowMinimize="False"
+                     CanMaximize="False">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/Assets/icon.ico" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
 
-        <StackPanel 
-            Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="20">
-            <ui:SymbolIcon Symbol="Power24" FontSize="48" Margin="0,0,0,15" Foreground="{DynamicResource SystemAccentColorBrush}" />
+        <StackPanel Grid.Row="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    Margin="20,8,20,8">
+            <ui:SymbolIcon Symbol="Power24"
+                           FontSize="48"
+                           Margin="0,0,0,12"
+                           Foreground="{DynamicResource SystemAccentColorPrimaryBrush}" />
             <TextBlock Text="Deseja reiniciar agora e entrar na BIOS/UEFI?"
-                       FontSize="16" 
+                       FontSize="16"
                        FontWeight="SemiBold"
-                       TextAlignment="Center" 
-                       TextWrapping="Wrap"/>
-            <TextBlock Text="(Firmware Setup)" 
-                       FontSize="14" 
+                       Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap" />
+            <TextBlock Text="(Firmware Setup)"
+                       FontSize="14"
                        Foreground="{DynamicResource TextFillColorSecondaryBrush}"
-                       TextAlignment="Center" 
-                       Margin="0,5,0,0"/>
+                       TextAlignment="Center"
+                       Margin="0,4,0,0" />
         </StackPanel>
 
-        <Grid Grid.Row="2" Margin="20" Background="Transparent">
+        <Grid Grid.Row="2"
+              Margin="20,4,20,18"
+              Background="Transparent">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="10" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            
-            <ui:Button Grid.Column="0" 
-                       Content="Cancelar" 
-                       Icon="Dismiss24"
+
+            <ui:Button Grid.Column="0"
+                       Content="Cancelar"
+                       Icon="{ui:SymbolIcon Dismiss24}"
                        Command="{Binding CancelCommand}"
-                       HorizontalAlignment="Stretch" 
-                       Appearance="Secondary"/>
-            
-            <ui:Button Grid.Column="2" 
-                       Content="Reiniciar" 
-                       Icon="Checkmark24"
+                       IsCancel="True"
+                       HorizontalAlignment="Stretch"
+                       Appearance="Secondary" />
+
+            <ui:Button Grid.Column="2"
+                       Content="Reiniciar"
+                       Icon="{ui:SymbolIcon Checkmark24}"
                        Command="{Binding ConfirmRestartCommand}"
-                       HorizontalAlignment="Stretch" 
-                       Appearance="Primary"/>
+                       IsDefault="True"
+                       HorizontalAlignment="Stretch"
+                       Appearance="Primary" />
         </Grid>
     </Grid>
 </ui:FluentWindow>

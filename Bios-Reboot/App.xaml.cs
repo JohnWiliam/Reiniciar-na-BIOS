@@ -1,83 +1,128 @@
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using BiosReboot.Services;
 using BiosReboot.ViewModels;
 using BiosReboot.Views;
-using Wpf.Ui;
-using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Wpf.Ui.Appearance;
 
 namespace BiosReboot;
 
 public partial class App : Application
 {
-    private static IHost _host = null!;
+    private const string MutexName = @"Local\BiosReboot_SingleInstance_Mutex_8F9A2B";
+    private Mutex? _singleInstanceMutex;
+    private bool _ownsMutex;
+    private IHost? _host;
 
     public App()
     {
-        // Setup global exception handling to catch startup crashes
-        AppDomain.CurrentDomain.UnhandledException += (s, e) =>
-            MessageBox.Show($"Fatal Error: {e.ExceptionObject}", "Bios Reboot Crash", MessageBoxButton.OK, MessageBoxImage.Error);
-
-        DispatcherUnhandledException += (s, e) =>
-        {
-            MessageBox.Show($"UI Error: {e.Exception.Message}", "Bios Reboot Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            e.Handled = true;
-        };
-
-        try
-        {
-            _host = Host.CreateDefaultBuilder()
-                .ConfigureServices((context, services) =>
-                {
-                    services.AddSingleton<ISystemPowerService, SystemPowerService>();
-                    services.AddSingleton<MainWindow>();
-                    services.AddSingleton<MainViewModel>();
-                })
-                .Build();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show($"Host Initialization Failed: {ex}", "Bios Reboot Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            // If host fails, we probably can't continue, but let it flow to OnStartup to fail there or just exit
-        }
+        AppDomain.CurrentDomain.UnhandledException += OnCurrentDomainUnhandledException;
+        DispatcherUnhandledException += OnAppDispatcherUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
     }
 
     protected override async void OnStartup(StartupEventArgs e)
     {
+        base.OnStartup(e);
+
+        _singleInstanceMutex = new Mutex( initiallyOwned: true, MutexName, out _ownsMutex);
+        if (!_ownsMutex)
+        {
+            Shutdown(0);
+            return;
+        }
+
         try
         {
-            if (_host == null)
-            {
-                MessageBox.Show("Application host is null. Exiting.", "Bios Reboot Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Shutdown();
-                return;
-            }
+            var builder = Host.CreateEmptyApplicationBuilder(settings: null);
+            builder.Services.AddSingleton<ISystemPowerService, SystemPowerService>();
+            builder.Services.AddSingleton<MainViewModel>();
+            builder.Services.AddSingleton<MainWindow>();
 
+            _host = builder.Build();
             await _host.StartAsync();
 
+            // Aplica cor de destaque e tema do sistema antes de criar a janela
+            ApplicationAccentColorManager.ApplySystemAccent();
+            ApplicationThemeManager.ApplySystemTheme();
+
             var mainWindow = _host.Services.GetRequiredService<MainWindow>();
-            // Verify if Theme Manager is initializing correctly
-            Wpf.Ui.Appearance.ApplicationThemeManager.ApplySystemTheme();
-
+            MainWindow = mainWindow;
             mainWindow.Show();
-
-            base.OnStartup(e);
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Startup Error: {ex}", "Bios Reboot Startup Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            Shutdown();
+            MessageBox.Show(
+                $"Erro na inicialização do aplicativo:\n\n{ex.Message}",
+                "Bios Reboot - Erro de Inicialização",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+            Shutdown(1);
         }
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    protected override void OnExit(ExitEventArgs e)
     {
-        if (_host != null)
+        AppDomain.CurrentDomain.UnhandledException -= OnCurrentDomainUnhandledException;
+        DispatcherUnhandledException -= OnAppDispatcherUnhandledException;
+        TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
+
+        try
         {
-            await _host.StopAsync();
-            _host.Dispose();
+            if (_host is not null)
+            {
+                _host.StopAsync(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                _host.Dispose();
+                _host = null;
+            }
         }
+        catch
+        {
+            // Ignora exceções durante o encerramento final do host
+        }
+        finally
+        {
+            if (_singleInstanceMutex is not null)
+            {
+                if (_ownsMutex)
+                {
+                    _singleInstanceMutex.ReleaseMutex();
+                }
+
+                _singleInstanceMutex.Dispose();
+                _singleInstanceMutex = null;
+            }
+        }
+
         base.OnExit(e);
+    }
+
+    private static void OnCurrentDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        MessageBox.Show(
+            $"Erro fatal não tratado:\n\n{e.ExceptionObject}",
+            "Bios Reboot - Erro Fatal",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error);
+    }
+
+    private static void OnAppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+        MessageBox.Show(
+            $"Erro na interface:\n\n{e.Exception.Message}",
+            "Bios Reboot - Erro",
+            MessageBoxButton.OK,
+            MessageBoxImage.Error);
+        e.Handled = true;
+    }
+
+    private static void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        e.SetObserved();
     }
 }
