@@ -1,36 +1,57 @@
+using System;
+using System.Threading.Tasks;
+using System.Windows;
+using BiosReboot.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using BiosReboot.Services;
-using System.Windows;
 
 namespace BiosReboot.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public sealed partial class MainViewModel : ObservableObject
 {
     private readonly ISystemPowerService _powerService;
 
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConfirmRestartCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CancelCommand))]
+    private bool _isBusy;
+
     public MainViewModel(ISystemPowerService powerService)
     {
+        ArgumentNullException.ThrowIfNull(powerService);
         _powerService = powerService;
     }
 
-    [RelayCommand]
-    private void ConfirmRestart()
+    private bool CanExecuteActions() => !IsBusy;
+
+    [RelayCommand(CanExecute = nameof(CanExecuteActions))]
+    private async Task ConfirmRestartAsync()
     {
-        try 
+        if (IsBusy)
         {
-            _powerService.RestartToFirmware();
-            Application.Current.Shutdown();
+            return;
         }
-        catch (System.Exception ex)
+
+        try
         {
-            MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButton.OK, MessageBoxImage.Error);
+            IsBusy = true;
+            await _powerService.RestartToFirmwareAsync();
+            Application.Current.Shutdown(0);
+        }
+        catch (Exception ex)
+        {
+            IsBusy = false;
+            MessageBox.Show(
+                $"Erro ao reiniciar para a BIOS/UEFI:\n\n{ex.Message}",
+                "Erro",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanExecuteActions))]
     private void Cancel()
     {
-        Application.Current.Shutdown();
+        Application.Current.Shutdown(0);
     }
 }
